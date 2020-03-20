@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Austin Taylor'
 
-from base.config import vwConfig
-from frameworks.nessus import NessusAPI
-from frameworks.qualys_web import qualysScanReport
-from frameworks.qualys_vuln import qualysVulnScan
-from frameworks.openvas import OpenVAS_API
-from reporting.jira_api import JiraAPI
+from vulnwhisp.base.config import vwConfig
+from vulnwhisp.frameworks.nessus import NessusAPI
+from vulnwhisp.frameworks.qualys_web import qualysScanReport
+from vulnwhisp.frameworks.qualys_vuln import qualysVulnScan
+from vulnwhisp.frameworks.openvas import OpenVAS_API
+from vulnwhisp.reporting.jira_api import JiraAPI
 import pandas as pd
 from lxml import objectify
 import sys
@@ -18,7 +18,7 @@ import sqlite3
 import json
 import logging
 import socket
-
+from functools import reduce
 
 class vulnWhispererBase(object):
 
@@ -460,9 +460,9 @@ class vulnWhispererNessus(vulnWhispererBase):
                             self.logger.error('Could not download {} scan {}: {}'.format(self.CONFIG_SECTION, scan_id, str(e)))
                             self.exit_code += 1
                             continue
-
+                        # removed .decode('utf-8') for Python 3 to work
                         clean_csv = \
-                            pd.read_csv(io.StringIO(file_req.decode('utf-8')))
+                            pd.read_csv(io.StringIO(file_req))
                         if len(clean_csv) > 2:
                             self.logger.info('Processing {}/{} for scan: {}'.format(scan_count, len(scan_list), scan_name.encode('utf8')))
                             columns_to_cleanse = ['CVSS','CVE','Description','Synopsis','Solution','See Also','Plugin Output', 'MAC Address']
@@ -470,8 +470,8 @@ class vulnWhispererNessus(vulnWhispererBase):
                             for col in columns_to_cleanse:
                                 if col in clean_csv:
                                     clean_csv[col] = clean_csv[col].astype(str).apply(self.cleanser)
-
-                            clean_csv.to_csv(relative_path_name, index=False)
+                            # added .decode('utf-8') for Python 3
+                            clean_csv.to_csv(relative_path_name.decode('utf-8'), index=False)
                             record_meta = (
                                 scan_name,
                                 scan_id,
