@@ -107,7 +107,8 @@ class NessusAPI(object):
             for chunk in response.iter_content(chunk_size=8192):
                 count += 1
                 if chunk:
-                    response_data += chunk
+                    # added .decode('utf-8') to work in Python 3
+                    response_data += chunk.decode('utf-8')
             self.logger.debug('Processed {} chunks'.format(count))
             return response_data
         return response
