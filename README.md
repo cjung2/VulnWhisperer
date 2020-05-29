@@ -49,7 +49,8 @@ Need assistance or just want to chat? Join our [slack channel](https://join.slac
 Requirements
 -------------
 ####
-*   Python 2.7
+*   Python 3.7 for Nessus
+*   Python 2.7 (the rest hasn't been migrated to Python 3.7 yet)
 *   Vulnerability Scanner
 *   Reporting System: Jira / ElasticStack 6.6
 
